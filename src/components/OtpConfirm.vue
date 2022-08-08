@@ -17,24 +17,35 @@ export default {
   data() {
     return {
       otp: '',
+      loading: false,
     };
   },
   methods: {
     async submit() {
-      if (this.actionType === 'login') {
-        await this.$httpClient.post('/api/login/approve-otp', {
-          otp: this.otp,
-        });
-      } else if (this.actionType === 'signMoneyTransfer') {
-        await this.$httpClient.post('/api/v1/documents/money-transfer/send-sms', {
-          transferId: this.moneyTransferId,
-          otp: this.otp,
-        });
-      } else if (this.actionType === 'signCredit') {
-        await this.$httpClient.post('/api/v1/documents/credit/send-sms', {
-          orderId: this.creditId,
-          otp: this.otp,
-        });
+      try {
+        this.loading = true;
+
+        if (this.actionType === 'login') {
+          await this.$httpClient.post('/api/login/approve-otp', {
+            otp: this.otp,
+          });
+        } else if (this.actionType === 'signMoneyTransfer') {
+          await this.$httpClient.post('/api/v1/documents/money-transfer/send-sms', {
+            transferId: this.moneyTransferId,
+            otp: this.otp,
+          });
+        } else if (this.actionType === 'signCredit') {
+          await this.$httpClient.post('/api/v1/documents/credit/send-sms', {
+            orderId: this.creditId,
+            otp: this.otp,
+          });
+        }
+
+        this.$emit('success', true);
+      } catch (e) {
+        this.$logger.captureException(e);
+      } finally {
+        this.loading = false;
       }
     },
     async resend() {
@@ -74,9 +85,20 @@ export default {
       >
     </label>
 
-    <button type="submit">Submit</button>
+    <button
+      :disabled="loading"
+      type="submit"
+    >
+      Submit
+    </button>
 
-    <button @click="resend">Resend sms</button>
+    <button
+      type="button"
+      :disabled="loading"
+      @click="resend"
+    >
+      Resend sms
+    </button>
   </form>
 </template>
 
