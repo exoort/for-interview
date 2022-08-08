@@ -74,6 +74,8 @@ export default {
       >
     </label>
 
+    <button type="submit">Submit</button>
+
     <button @click="resend">Resend sms</button>
   </form>
 </template>
